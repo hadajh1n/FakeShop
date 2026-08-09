@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FakeShop</string>
+
+    // LoginScreen
+    <string name="tfEmailLabel">Email</string>
+    <string name="tfPasswordLabel">Пароль</string>
+    <string name="btnEntranceLabel">Войти</string>
+</resources>
