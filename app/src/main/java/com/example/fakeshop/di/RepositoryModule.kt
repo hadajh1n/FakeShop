@@ -1,7 +1,6 @@
 package com.example.fakeshop.di
 
 import com.example.fakeshop.data.mapper.ProductDtoToEntityMapper
-import com.example.fakeshop.data.mapper.ProductEntityToCacheMapper
 import com.example.fakeshop.data.repository.AppRepository
 import com.example.fakeshop.data.room.ProductDao
 import com.example.fakeshop.network.ProductApi
@@ -21,6 +20,5 @@ object RepositoryModule {
         dao: ProductDao,
         api: ProductApi,
         mapperDto: ProductDtoToEntityMapper,
-        mapperCache: ProductEntityToCacheMapper,
-    ): AppRepository = AppRepository(dao, api, mapperDto, mapperCache)
+    ): AppRepository = AppRepository(dao, api, mapperDto)
 }

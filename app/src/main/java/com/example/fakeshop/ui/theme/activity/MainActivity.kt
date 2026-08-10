@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,7 +30,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,6 +41,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.fakeshop.R
 import com.example.fakeshop.data.dataclass.ProductUI
 import com.example.fakeshop.ui.theme.FakeShopTheme
@@ -164,7 +170,25 @@ fun ProductItem(
     product: ProductUI,
     onClick: () -> Unit,
 ) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
 
+        AsyncImage(
+            model = product.thumbnail,
+            contentDescription = null,
+            modifier = Modifier
+                .size(80.dp)
+                .clip(RoundedCornerShape(15.dp))
+        )
+
+        Text(text = product.title)
+
+        Text(text = product.category)
+
+        Text(text = "${product.price}")
+    }
 }
 
 @Composable
@@ -172,8 +196,8 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
 ) {
     NavHost(
-      navController = navController,
-        startDestination = NavScreen.Login.route
+        navController = navController,
+        startDestination = NavScreen.Login.route,
     ) {
         composable(NavScreen.Login.route) {
             LoginScreen(onLoginSuccess = {

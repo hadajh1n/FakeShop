@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.fakeshop.data.repository.AppRepository
 import com.example.fakeshop.ui.theme.mapper.ProductEntityToUiMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 
 @HiltViewModel

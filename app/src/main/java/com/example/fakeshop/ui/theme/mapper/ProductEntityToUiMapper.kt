@@ -12,14 +12,6 @@ class ProductEntityToUiMapper {
             description = entity.description,
             category = entity.category,
             price = entity.price,
-            discountPercentage = entity.discountPercentage,
-            rating = entity.rating,
-            stock = entity.stock,
-            brand = entity.brand,
             thumbnail = entity.thumbnail,
-            images = entity.images,
-            tags = entity.tags,
-            availabilityStatus = entity.availabilityStatus,
-            isFavorite = entity.isFavorite,
         )
 }
