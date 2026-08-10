@@ -3,10 +3,10 @@ package com.example.fakeshop.ui.theme.activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,8 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,14 +41,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil.compose.SubcomposeAsyncImage
 import com.example.fakeshop.R
 import com.example.fakeshop.data.dataclass.ProductUI
 import com.example.fakeshop.ui.theme.FakeShopTheme
 import com.example.fakeshop.ui.theme.navigation.NavScreen
 import com.example.fakeshop.ui.theme.viewModel.LoginUIState
 import com.example.fakeshop.ui.theme.viewModel.LoginViewModel
+import com.example.fakeshop.ui.theme.viewModel.ProductUIState
 import com.example.fakeshop.ui.theme.viewModel.ProductsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -146,21 +146,54 @@ fun ProductsScreen(
     viewModel: ProductsViewModel = hiltViewModel(),
     onProductClick: (ProductUI) -> Unit = {},
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val products by viewModel.products.collectAsStateWithLifecycle(initialValue = emptyList())
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(12.dp),
-        modifier = modifier.fillMaxWidth()
-    ) {
-        items(
-            items = products,
-            key = { it.id },
-        ) { product ->
-            ProductItem(
-                product = product,
-                onClick = { onProductClick(product) },
-            )
+    when (val state = uiState) {
+        is ProductUIState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        is ProductUIState.Success,
+        is ProductUIState.Standard -> {
+            if (products.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("Пустой список")
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(12.dp),
+                    modifier = modifier.fillMaxWidth()
+                ) {
+                    items(
+                        items = products,
+                        key = { it.id },
+                    ) { product ->
+                        ProductItem(
+                            product = product,
+                            onClick = { onProductClick(product) },
+                        )
+                    }
+                }
+            }
+        }
+
+        is ProductUIState.Error -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = state.message)
+            }
         }
     }
 }
@@ -174,13 +207,35 @@ fun ProductItem(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-
-        AsyncImage(
+        SubcomposeAsyncImage(
             model = product.thumbnail,
-            contentDescription = null,
+            contentDescription = product.title,
             modifier = Modifier
-                .size(80.dp)
-                .clip(RoundedCornerShape(15.dp))
+                .size(150.dp)
+                .align(alignment = Alignment.CenterHorizontally),
+            loading = {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            },
+            error = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "Нет фото",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(alignment = Alignment.Center),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
         )
 
         Text(text = product.title)
