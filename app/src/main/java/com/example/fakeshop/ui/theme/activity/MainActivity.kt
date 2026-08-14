@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,15 +25,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,9 +50,11 @@ import com.example.fakeshop.ui.theme.FakeShopTheme
 import com.example.fakeshop.ui.theme.navigation.NavScreen
 import com.example.fakeshop.ui.theme.viewModel.LoginUIState
 import com.example.fakeshop.ui.theme.viewModel.LoginViewModel
+import com.example.fakeshop.ui.theme.viewModel.PaginationState
 import com.example.fakeshop.ui.theme.viewModel.ProductUIState
 import com.example.fakeshop.ui.theme.viewModel.ProductsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -147,7 +151,34 @@ fun ProductsScreen(
     onProductClick: (ProductUI) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pagingState by viewModel.paginationState.collectAsStateWithLifecycle()
     val products by viewModel.products.collectAsStateWithLifecycle(initialValue = emptyList())
+    val gridState = rememberLazyGridState()
+
+    LaunchedEffect(gridState) {
+        snapshotFlow {
+            val lastVisibleIndex =
+                gridState.layoutInfo.visibleItemsInfo
+                    .lastOrNull()
+                    ?.index
+
+            val totalItems =
+                gridState.layoutInfo.totalItemsCount
+
+            lastVisibleIndex to totalItems
+        }
+            .distinctUntilChanged()
+            .collect { (lastVisibleIndex, totalItems) ->
+
+                if (
+                    lastVisibleIndex != null &&
+                    totalItems > 0 &&
+                    lastVisibleIndex >= totalItems - 2
+                ) {
+                    viewModel.loadNextPage()
+                }
+            }
+    }
 
     when (val state = uiState) {
         is ProductUIState.Loading -> {
@@ -172,7 +203,8 @@ fun ProductsScreen(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     contentPadding = PaddingValues(12.dp),
-                    modifier = modifier.fillMaxWidth()
+                    modifier = modifier.fillMaxWidth(),
+                    state = gridState,
                 ) {
                     items(
                         items = products,
