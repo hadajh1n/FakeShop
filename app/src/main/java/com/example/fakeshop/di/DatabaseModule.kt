@@ -3,7 +3,7 @@ package com.example.fakeshop.di
 import android.content.Context
 import androidx.room.Room
 import com.example.fakeshop.data.room.AppDatabase
-import com.example.fakeshop.data.room.ProductDao
+import com.example.fakeshop.data.room.products.ProductDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

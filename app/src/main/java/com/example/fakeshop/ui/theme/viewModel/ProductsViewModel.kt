@@ -1,6 +1,5 @@
 package com.example.fakeshop.ui.theme.viewModel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fakeshop.data.repository.AppRepository
@@ -36,6 +35,7 @@ class ProductsViewModel @Inject constructor(
 ) : ViewModel() {
 
     companion object {
+        private const val CACHE_VALID = 15 * 60 * 1000L
         private const val PRODUCTS_LIMIT = 30
     }
 
@@ -45,43 +45,49 @@ class ProductsViewModel @Inject constructor(
     private var _paginationState = MutableStateFlow<PaginationState>(PaginationState.Standard)
     val paginationState: StateFlow<PaginationState> = _paginationState.asStateFlow()
 
-    private var skip = 0
-    private var isLastPage = false
-
     private var loadPageJob: Job? = null
 
-    val products = repository.getAllProducts()
+    val products = repository.getAllProductsDatabase()
         .map { entities ->
             entities.map { entity ->
                 mapperUI.fromEntityToUI(entity)
             }
         }
 
-    init { loadFirstPage() }
+    init {
+        if (!isCacheValid()) {
+            refreshData()
+            updateCache()
+        }
+    }
+
+    private fun isCacheValid(): Boolean {
+        val lastCache = repository.getLastCache()
+        return System.currentTimeMillis() - lastCache < CACHE_VALID
+    }
+
+    private fun updateCache() = repository.updateLastCacheTime()
 
     private suspend fun loadPage() {
+        var skip = repository.getCurrentSkip()
         val response = repository.loadProducts(
             limit = PRODUCTS_LIMIT,
             skip = skip,
         )
         repository.setProduct(response.products)
         skip += response.products.size
-        isLastPage = skip >= response.total
+        repository.setNewSkip(skip)
+        if (skip >= response.total) repository.updateLastPage()
     }
 
     fun loadFirstPage() {
-        if (loadPageJob?.isActive == true) {
-            Log.e("TestPaging", "loadFirstPage: job is active")
-            return
-        }
-        if (isLastPage) return
+        if (loadPageJob?.isActive == true) return
+        if (repository.isLastPage()) return
 
-        Log.e("TestPaging", "loadFirstPage: $skip")
         _uiState.value = ProductUIState.Loading
 
         loadPageJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                Log.e("TestPaging", "loadFirstPage: job is active")
                 loadPage()
                 _uiState.value = ProductUIState.Success
             } catch (e: Exception) {
@@ -91,13 +97,8 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun loadNextPage() {
-        if (loadPageJob?.isActive == true) {
-            Log.e("TestPaging", "loadNextPage: job is active")
-            return
-        }
-        if (isLastPage) return
-
-        Log.e("TestPaging", "loadNextPage: $skip")
+        if (loadPageJob?.isActive == true) return
+        if (repository.isLastPage()) return
 
         _paginationState.value = PaginationState.Loading
 
@@ -105,11 +106,24 @@ class ProductsViewModel @Inject constructor(
             try {
                 loadPage()
                 _paginationState.value = PaginationState.Standard
-                Log.e("TestPaging", "loadNextPage is Success: $skip")
             } catch (e: Exception) {
                 _paginationState.value = PaginationState.Standard
             }
         }
     }
 
+    fun refreshData() {
+        repository.resetPagination()
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            repository.clearAllProductsDatabase()
+
+            try {
+                loadFirstPage()
+            } catch (e: Exception) {
+
+            }
+        }
+    }
 }

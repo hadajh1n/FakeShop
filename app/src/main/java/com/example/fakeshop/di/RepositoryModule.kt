@@ -1,8 +1,9 @@
 package com.example.fakeshop.di
 
 import com.example.fakeshop.data.mapper.ProductDtoToEntityMapper
+import com.example.fakeshop.data.preferences.AppPreferences
 import com.example.fakeshop.data.repository.AppRepository
-import com.example.fakeshop.data.room.ProductDao
+import com.example.fakeshop.data.room.products.ProductDao
 import com.example.fakeshop.network.ProductApi
 import dagger.Module
 import dagger.Provides
@@ -17,8 +18,9 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideRepository(
-        dao: ProductDao,
+        productDao: ProductDao,
+        preferences: AppPreferences,
         api: ProductApi,
         mapperDto: ProductDtoToEntityMapper,
-    ): AppRepository = AppRepository(dao, api, mapperDto)
+    ): AppRepository = AppRepository(productDao, preferences, api, mapperDto)
 }

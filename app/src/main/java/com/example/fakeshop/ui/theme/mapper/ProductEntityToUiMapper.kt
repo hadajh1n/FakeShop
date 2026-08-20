@@ -1,7 +1,7 @@
 package com.example.fakeshop.ui.theme.mapper
 
 import com.example.fakeshop.data.dataclass.ProductUI
-import com.example.fakeshop.data.room.ProductEntity
+import com.example.fakeshop.data.room.products.ProductEntity
 
 class ProductEntityToUiMapper {
 
