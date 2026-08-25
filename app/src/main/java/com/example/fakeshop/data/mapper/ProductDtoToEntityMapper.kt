@@ -1,6 +1,6 @@
 package com.example.fakeshop.data.mapper
 
-import com.example.fakeshop.data.dataclass.ProductDTO
+import com.example.fakeshop.data.model.ProductDTO
 import com.example.fakeshop.data.room.products.ProductEntity
 
 class ProductDtoToEntityMapper {

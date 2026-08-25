@@ -1,17 +1,17 @@
 package com.example.fakeshop.ui.theme.mapper
 
-import com.example.fakeshop.data.dataclass.ProductUI
-import com.example.fakeshop.data.room.products.ProductEntity
+import com.example.fakeshop.ui.theme.model.ProductUI
+import com.example.fakeshop.domain.model.Product
 
-class ProductEntityToUiMapper {
+class ProductDomainToUiMapper {
 
-    fun fromEntityToUI(entity: ProductEntity): ProductUI =
+    fun fromDomainToUI(domain: Product): ProductUI =
         ProductUI(
-            id = entity.id,
-            title = entity.title,
-            description = entity.description,
-            category = entity.category,
-            price = entity.price,
-            thumbnail = entity.thumbnail,
+            id = domain.id,
+            title = domain.title,
+            description = domain.description,
+            category = domain.category,
+            price = domain.price,
+            thumbnail = domain.thumbnail,
         )
 }

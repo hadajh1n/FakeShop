@@ -1,0 +1,8 @@
+package com.example.fakeshop.domain.error
+
+sealed interface AppError {
+    data object Network : AppError
+    data object Server : AppError
+    data object Unauthorized : AppError
+    data object Unknown : AppError
+}

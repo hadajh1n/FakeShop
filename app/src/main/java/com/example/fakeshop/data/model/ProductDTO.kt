@@ -1,4 +1,4 @@
-package com.example.fakeshop.data.dataclass
+package com.example.fakeshop.data.model
 
 data class ProductsResponse(
     val products: List<ProductDTO>,

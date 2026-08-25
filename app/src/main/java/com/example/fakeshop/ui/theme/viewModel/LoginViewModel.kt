@@ -1,7 +1,7 @@
 package com.example.fakeshop.ui.theme.viewModel
 
 import androidx.lifecycle.ViewModel
-import com.example.fakeshop.data.repository.AppRepository
+import com.example.fakeshop.domain.repository.ProductsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ sealed class LoginUIState {
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: AppRepository,
+    private val repository: ProductsRepository,
 ) : ViewModel() {
 
     private var _uiState = MutableStateFlow<LoginUIState>(LoginUIState.Standard)

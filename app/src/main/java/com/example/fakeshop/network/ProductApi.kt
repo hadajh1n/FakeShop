@@ -1,6 +1,6 @@
 package com.example.fakeshop.network
 
-import com.example.fakeshop.data.dataclass.ProductsResponse
+import com.example.fakeshop.data.model.ProductsResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

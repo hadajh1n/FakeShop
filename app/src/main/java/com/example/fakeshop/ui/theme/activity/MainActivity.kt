@@ -3,8 +3,6 @@ package com.example.fakeshop.ui.theme.activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,12 +43,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.SubcomposeAsyncImage
 import com.example.fakeshop.R
-import com.example.fakeshop.data.dataclass.ProductUI
+import com.example.fakeshop.ui.theme.model.ProductUI
 import com.example.fakeshop.ui.theme.FakeShopTheme
 import com.example.fakeshop.ui.theme.navigation.NavScreen
 import com.example.fakeshop.ui.theme.viewModel.LoginUIState
 import com.example.fakeshop.ui.theme.viewModel.LoginViewModel
-import com.example.fakeshop.ui.theme.viewModel.PaginationState
 import com.example.fakeshop.ui.theme.viewModel.ProductUIState
 import com.example.fakeshop.ui.theme.viewModel.ProductsViewModel
 import dagger.hilt.android.AndroidEntryPoint
