@@ -25,10 +25,8 @@ class AppRepository(
     fun getAllProductsDatabase() = productDao.getAllProducts()
     suspend fun clearAllProductsDatabase() = productDao.clearAllProducts()
 
-
     fun getLastCache() = preferences.getLastCacheUpdate()
     fun updateLastCacheTime() = preferences.updateLastCacheTime()
-
 
     fun getCurrentSkip() = preferences.getCurrentSkip()
     fun setNewSkip(skip: Int) = preferences.updateCurrentSkip(skip)
