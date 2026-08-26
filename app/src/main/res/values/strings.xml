@@ -5,4 +5,15 @@
     <string name="tfEmailLabel">Email</string>
     <string name="tfPasswordLabel">Пароль</string>
     <string name="btnEntranceLabel">Войти</string>
+
+    // ProductsScreen
+    <string name="emptyList">Список пуст</string>
+    <string name="errorUnknownHostException">Нет подключения к интернету</string>
+    <string name="errorUnauthorized">Ошибка авторизации</string>
+    <string name="errorServer">Ошибка сервера</string>
+    <string name="errorUnknown">Неизвестная ошибка</string>
+
+    // ProductItem
+    <string name="errorImageLoad">Нет фото</string>
+
 </resources>

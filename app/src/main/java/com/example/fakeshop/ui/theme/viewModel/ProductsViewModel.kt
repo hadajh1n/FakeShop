@@ -3,6 +3,8 @@ package com.example.fakeshop.ui.theme.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fakeshop.domain.repository.ProductsRepository
+import com.example.fakeshop.domain.result.AppError
+import com.example.fakeshop.domain.result.AppResult
 import com.example.fakeshop.ui.theme.mapper.ProductDomainToUiMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -14,15 +16,13 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.net.UnknownHostException
 
 sealed class ProductUIState {
 
     object Standard : ProductUIState()
     object Loading : ProductUIState()
     object Success : ProductUIState()
-    data class Error(val message: String) : ProductUIState()
+    data class Error(val value: AppError) : ProductUIState()
 }
 
 sealed class PaginationState {
@@ -75,13 +75,12 @@ class ProductsViewModel @Inject constructor(
 
             _paginationState.value = PaginationState.Loading
 
-            try {
-                repository.loadNextPage()
-            } catch (e: Exception) {
-                _uiState.value = ProductUIState.Error(mapError(e))
-            } finally {
-                _paginationState.value = PaginationState.Standard
+            when (val result = repository.loadNextPage()) {
+                is AppResult.Success -> _uiState.value = ProductUIState.Success
+                is AppResult.Error   -> _uiState.value = ProductUIState.Error(result.error)
             }
+
+            _paginationState.value = PaginationState.Standard
         }
     }
 
@@ -93,20 +92,12 @@ class ProductsViewModel @Inject constructor(
             _refreshState.value = RefreshState.Loading
             _uiState.value = ProductUIState.Loading
 
-            try {
-                repository.refreshProducts()
-                _uiState.value = ProductUIState.Success
-            } catch (e: Exception) {
-                _uiState.value = ProductUIState.Error("")
-            } finally {
-                _refreshState.value = RefreshState.Standard
+            when (val result = repository.refreshProducts()) {
+                is AppResult.Success -> _uiState.value = ProductUIState.Success
+                is AppResult.Error   -> _uiState.value = ProductUIState.Error(result.error)
             }
-        }
-    }
 
-    private fun mapError(e: Exception): String = when (e) {
-        is UnknownHostException -> "Нет подключения к интернету"
-        is HttpException -> "Ошибка сервера: ${e.code()}"
-        else -> e.localizedMessage ?: "Неизвестная ошибка"
+            _refreshState.value = RefreshState.Standard
+        }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -43,11 +44,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.SubcomposeAsyncImage
 import com.example.fakeshop.R
+import com.example.fakeshop.domain.result.AppError
 import com.example.fakeshop.ui.theme.model.ProductUI
 import com.example.fakeshop.ui.theme.FakeShopTheme
 import com.example.fakeshop.ui.theme.navigation.NavScreen
 import com.example.fakeshop.ui.theme.viewModel.LoginUIState
 import com.example.fakeshop.ui.theme.viewModel.LoginViewModel
+import com.example.fakeshop.ui.theme.viewModel.PaginationState
 import com.example.fakeshop.ui.theme.viewModel.ProductUIState
 import com.example.fakeshop.ui.theme.viewModel.ProductsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -148,7 +151,8 @@ fun ProductsScreen(
     onProductClick: (ProductUI) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val pagingState by viewModel.paginationState.collectAsStateWithLifecycle()
+    val paginationState by viewModel.paginationState.collectAsStateWithLifecycle()
+    val refreshState by viewModel.refreshState.collectAsStateWithLifecycle()
     val products by viewModel.products.collectAsStateWithLifecycle(initialValue = emptyList())
     val gridState = rememberLazyGridState()
 
@@ -194,7 +198,7 @@ fun ProductsScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text("Пустой список")
+                    Text(stringResource(R.string.emptyList))
                 }
             } else {
                 LazyVerticalGrid(
@@ -212,6 +216,19 @@ fun ProductsScreen(
                             onClick = { onProductClick(product) },
                         )
                     }
+
+                    if (paginationState is PaginationState.Loading) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Box(
+                                modifier = modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -221,7 +238,14 @@ fun ProductsScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = state.message)
+                Text(
+                    text = when (state) {
+                        AppError.Network -> stringResource(R.string.errorUnknownHostException)
+                        AppError.Unauthorized -> stringResource(R.string.errorUnauthorized)
+                        AppError.Server -> stringResource(R.string.errorServer)
+                        else -> stringResource(R.string.errorUnknown)
+                    }
+                )
             }
         }
     }
@@ -257,7 +281,7 @@ fun ProductItem(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "Нет фото",
+                        text = stringResource(R.string.errorImageLoad),
                         modifier = Modifier
                             .fillMaxWidth()
                             .align(alignment = Alignment.Center),

@@ -1,6 +1,7 @@
 package com.example.fakeshop.domain.repository
 
 import com.example.fakeshop.domain.model.Product
+import com.example.fakeshop.domain.result.AppResult
 import kotlinx.coroutines.flow.Flow
 
 interface ProductsRepository {
@@ -11,6 +12,6 @@ interface ProductsRepository {
 
     fun observeProducts(): Flow<List<Product>>
 
-    suspend fun loadNextPage()
-    suspend fun refreshProducts()
+    suspend fun loadNextPage(): AppResult<Unit>
+    suspend fun refreshProducts(): AppResult<Unit>
 }
