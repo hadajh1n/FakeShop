@@ -25,6 +25,7 @@ class ProductsRepositoryImpl(
     companion object {
         private const val CACHE_VALID = 15 * 60 * 1000L
         private const val PRODUCTS_LIMIT = 30
+        private const val REFRESH_SKIP = 0
     }
 
     override fun isCacheValid(): Boolean {
@@ -42,19 +43,22 @@ class ProductsRepositoryImpl(
         }
     }
 
-    override suspend fun loadNextPage(): AppResult<Unit> {
+    override suspend fun reloadFromFirstPage(): AppResult<Unit> {
 
         return try {
-            val skip = preferences.getCurrentSkip()
-            val response = productApi.getProducts(PRODUCTS_LIMIT, skip)
+            val response = productApi.getProducts(PRODUCTS_LIMIT, REFRESH_SKIP)
 
+            productDao.clearAllProducts()
             val entities = response.products.map { mapperDtoEntity.fromDtoToEntity(it) }
             productDao.insertProduct(entities)
 
-            val newSkip = skip + response.products.size
+            val newSkip = REFRESH_SKIP + response.products.size
             preferences.updateCurrentSkip(newSkip)
+            preferences.resetLastPage()
 
             if (newSkip >= response.total) preferences.updateLastPage()
+
+            updateLastCacheTime()
 
             AppResult.Success(Unit)
         } catch (e: UnknownHostException) {
@@ -72,13 +76,20 @@ class ProductsRepositoryImpl(
         }
     }
 
-    override suspend fun refreshProducts(): AppResult<Unit> {
+    override suspend fun loadNextPage(): AppResult<Unit> {
 
         return try {
-            productDao.clearAllProducts()
-            preferences.resetPagination()
-            loadNextPage()
-            updateLastCacheTime()
+            val skip = preferences.getCurrentSkip()
+            val response = productApi.getProducts(PRODUCTS_LIMIT, skip)
+
+            val entities = response.products.map { mapperDtoEntity.fromDtoToEntity(it) }
+            productDao.insertProduct(entities)
+
+            val newSkip = skip + response.products.size
+            preferences.updateCurrentSkip(newSkip)
+
+            if (newSkip >= response.total) preferences.updateLastPage()
+
             AppResult.Success(Unit)
         } catch (e: UnknownHostException) {
             AppResult.Error(AppError.Network)

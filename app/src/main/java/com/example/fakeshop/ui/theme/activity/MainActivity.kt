@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -48,10 +49,11 @@ import com.example.fakeshop.domain.result.AppError
 import com.example.fakeshop.ui.theme.model.ProductUI
 import com.example.fakeshop.ui.theme.FakeShopTheme
 import com.example.fakeshop.ui.theme.navigation.NavScreen
+import com.example.fakeshop.ui.theme.state.InitialLoadState
+import com.example.fakeshop.ui.theme.state.PaginationState
+import com.example.fakeshop.ui.theme.state.RefreshState
 import com.example.fakeshop.ui.theme.viewModel.LoginUIState
 import com.example.fakeshop.ui.theme.viewModel.LoginViewModel
-import com.example.fakeshop.ui.theme.viewModel.PaginationState
-import com.example.fakeshop.ui.theme.viewModel.ProductUIState
 import com.example.fakeshop.ui.theme.viewModel.ProductsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -150,7 +152,7 @@ fun ProductsScreen(
     viewModel: ProductsViewModel = hiltViewModel(),
     onProductClick: (ProductUI) -> Unit = {},
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val initialLoadState by viewModel.initialLoadState.collectAsStateWithLifecycle()
     val paginationState by viewModel.paginationState.collectAsStateWithLifecycle()
     val refreshState by viewModel.refreshState.collectAsStateWithLifecycle()
     val products by viewModel.products.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -181,8 +183,8 @@ fun ProductsScreen(
             }
     }
 
-    when (val state = uiState) {
-        is ProductUIState.Loading -> {
+    when (val state = initialLoadState) {
+        is InitialLoadState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
@@ -191,8 +193,8 @@ fun ProductsScreen(
             }
         }
 
-        is ProductUIState.Success,
-        is ProductUIState.Standard -> {
+        is InitialLoadState.Success,
+        is InitialLoadState.Idle -> {
             if (products.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -201,39 +203,45 @@ fun ProductsScreen(
                     Text(stringResource(R.string.emptyList))
                 }
             } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(12.dp),
-                    modifier = modifier.fillMaxWidth(),
-                    state = gridState,
+                PullToRefreshBox(
+                    isRefreshing = refreshState is RefreshState.Loading,
+                    onRefresh = { viewModel.refreshData() }
                 ) {
-                    items(
-                        items = products,
-                        key = { it.id },
-                    ) { product ->
-                        ProductItem(
-                            product = product,
-                            onClick = { onProductClick(product) },
-                        )
-                    }
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(12.dp),
+                        modifier = modifier.fillMaxWidth(),
+                        state = gridState,
+                    ) {
+                        items(
+                            items = products,
+                            key = { it.id },
+                        ) { product ->
+                            ProductItem(
+                                product = product,
+                                onClick = { onProductClick(product) },
+                            )
+                        }
 
-                    if (paginationState is PaginationState.Loading) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
-                            Box(
-                                modifier = modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+                        if (paginationState is PaginationState.Loading) {
+                            item(span = { GridItemSpan(maxLineSpan) }) {
+                                Box(
+                                    modifier = modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             }
                         }
                     }
                 }
+
             }
         }
 
-        is ProductUIState.Error -> {
+        is InitialLoadState.Error -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,

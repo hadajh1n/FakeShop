@@ -12,6 +12,6 @@ interface ProductsRepository {
 
     fun observeProducts(): Flow<List<Product>>
 
+    suspend fun reloadFromFirstPage(): AppResult<Unit>
     suspend fun loadNextPage(): AppResult<Unit>
-    suspend fun refreshProducts(): AppResult<Unit>
 }

@@ -30,8 +30,7 @@ class AppPreferences(context: Context) {
         .putBoolean("products_last_page", true)
         .apply()
 
-    fun resetPagination() = preferences.edit()
-        .putInt("products_skip", 0)
+    fun resetLastPage() = preferences.edit()
         .putBoolean("products_last_page", false)
         .apply()
 }
