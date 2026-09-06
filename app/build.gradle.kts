@@ -54,6 +54,7 @@ dependencies {
 
     // Coil
     implementation(libs.coil)
+    implementation(libs.coil.compose)
 
     // LeakCanary
     debugImplementation(libs.leakcanary.android)

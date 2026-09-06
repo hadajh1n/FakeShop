@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -34,6 +36,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
 import com.example.fakeshop.R
 import com.example.fakeshop.domain.result.AppError
 import com.example.fakeshop.ui.theme.model.ProductUI
@@ -66,15 +70,22 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FakeShopTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background,
-                ) { innerPadding ->
-                    Box(Modifier.padding(innerPadding)) {
-                        AppNavHost()
-                    }
-                }
+                AppContent()
             }
+        }
+    }
+}
+
+@Composable
+private fun AppContent() {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { innerPadding ->
+        Box(
+            Modifier.padding(innerPadding)
+        ) {
+            AppNavHost()
         }
     }
 }
@@ -267,43 +278,71 @@ fun ProductItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(
+                top = 4.dp,
+                bottom = 4.dp,
+            )
     ) {
-        SubcomposeAsyncImage(
-            model = product.thumbnail,
-            contentDescription = product.title,
+        Card(
             modifier = Modifier
-                .size(150.dp)
-                .align(alignment = Alignment.CenterHorizontally),
-            loading = {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            },
-            error = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = stringResource(R.string.errorImageLoad),
+                .padding(4.dp)
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            )
+        ) {
+            SubcomposeAsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(product.thumbnail)
+                    .size(150)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = product.title,
+                modifier = Modifier
+                    .size(150.dp)
+                    .padding(10.dp)
+                    .align(alignment = Alignment.CenterHorizontally),
+                loading = {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(color = Color.Blue)
+                    }
+                },
+                error = {
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .align(alignment = Alignment.Center),
-                        textAlign = TextAlign.Center,
-                    )
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.errorImageLoad),
+                            color = Color.Black,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(alignment = Alignment.Center),
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 }
-            }
+            )
+        }
+
+        Text(
+            text = product.title,
+            color = Color.White,
         )
 
-        Text(text = product.title)
+        Text(
+            text = product.category,
+            color = Color.LightGray,
+        )
 
-        Text(text = product.category)
-
-        Text(text = "${product.price}")
+        Text(
+            text = "${product.price} $",
+            color = Color.Cyan,
+        )
     }
 }
 
