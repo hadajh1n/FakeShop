@@ -1,4 +1,4 @@
-package com.example.fakeshop.ui.theme.viewModel
+package com.example.fakeshop.ui.viewModel
 
 import androidx.lifecycle.ViewModel
 import com.example.fakeshop.domain.repository.ProductsRepository

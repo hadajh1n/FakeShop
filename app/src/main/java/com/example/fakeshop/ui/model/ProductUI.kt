@@ -1,4 +1,4 @@
-package com.example.fakeshop.ui.theme.model
+package com.example.fakeshop.ui.model
 
 data class ProductUI(
     val id: Int,

@@ -1,13 +1,13 @@
-package com.example.fakeshop.ui.theme.viewModel
+package com.example.fakeshop.ui.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fakeshop.domain.repository.ProductsRepository
 import com.example.fakeshop.domain.result.AppResult
-import com.example.fakeshop.ui.theme.mapper.ProductDomainToUiMapper
-import com.example.fakeshop.ui.theme.state.InitialLoadState
-import com.example.fakeshop.ui.theme.state.PaginationState
-import com.example.fakeshop.ui.theme.state.RefreshState
+import com.example.fakeshop.ui.mapper.ProductDomainToUiMapper
+import com.example.fakeshop.ui.state.InitialLoadState
+import com.example.fakeshop.ui.state.PaginationState
+import com.example.fakeshop.ui.state.RefreshState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,7 +48,7 @@ class ProductsViewModel @Inject constructor(
 
     init { if (!repository.isCacheValid()) loadFirstPage() }
 
-    fun loadFirstPage() {
+    private fun loadFirstPage() {
         if (loadFirstPageJob?.isActive == true) return
         if (repository.isLastPage()) return
 

@@ -1,4 +1,4 @@
-package com.example.fakeshop.ui.theme.state
+package com.example.fakeshop.ui.state
 
 import com.example.fakeshop.domain.result.AppError
 

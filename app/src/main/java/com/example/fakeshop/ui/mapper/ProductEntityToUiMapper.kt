@@ -1,6 +1,6 @@
-package com.example.fakeshop.ui.theme.mapper
+package com.example.fakeshop.ui.mapper
 
-import com.example.fakeshop.ui.theme.model.ProductUI
+import com.example.fakeshop.ui.model.ProductUI
 import com.example.fakeshop.domain.model.Product
 
 class ProductDomainToUiMapper {
