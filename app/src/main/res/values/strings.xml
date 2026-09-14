@@ -9,6 +9,7 @@
     // ProductsScreen
     <string name="emptyList">Список пуст</string>
     <string name="errorUnknownHostException">Нет подключения к интернету</string>
+    <string name="errorTimeout">Превышено время ожидания. Попробуйте еще раз</string>
     <string name="errorUnauthorized">Ошибка авторизации</string>
     <string name="errorServer">Ошибка сервера</string>
     <string name="errorUnknown">Неизвестная ошибка</string>

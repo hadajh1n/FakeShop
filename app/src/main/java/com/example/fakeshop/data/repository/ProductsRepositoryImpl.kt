@@ -12,6 +12,7 @@ import com.example.fakeshop.network.ProductApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 class ProductsRepositoryImpl(
@@ -65,6 +66,8 @@ class ProductsRepositoryImpl(
             AppResult.Success(Unit)
         } catch (e: UnknownHostException) {
             AppResult.Error(AppError.Network)
+        } catch (e: SocketTimeoutException) {
+            AppResult.Error(AppError.Timeout)
         } catch (e: HttpException) {
             AppResult.Error(
                 when (e.code()) {
@@ -95,6 +98,8 @@ class ProductsRepositoryImpl(
             AppResult.Success(Unit)
         } catch (e: UnknownHostException) {
             AppResult.Error(AppError.Network)
+        } catch (e: SocketTimeoutException) {
+            AppResult.Error(AppError.Timeout)
         } catch (e: HttpException) {
             AppResult.Error(
                 when (e.code()) {

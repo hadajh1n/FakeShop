@@ -9,6 +9,9 @@ fun AppError.toMessage(context: Context): String =
         AppError.Network ->
             context.getString(R.string.errorUnknownHostException)
 
+        AppError.Timeout ->
+            context.getString(R.string.errorTimeout)
+
         AppError.Unauthorized ->
             context.getString(R.string.errorUnauthorized)
 
