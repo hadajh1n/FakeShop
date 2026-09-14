@@ -60,7 +60,12 @@ class ProductsViewModel @Inject constructor(
             initialValue = emptyList(),
         )
 
-    init { if (!repository.isCacheValid()) loadFirstPage() }
+    init {
+        viewModelScope.launch {
+            if (!repository.hasProducts()) loadFirstPage()
+            else if (!repository.isCacheValid()) refreshData()
+        }
+    }
 
     private fun loadFirstPage() {
         if (loadFirstPageJob?.isActive == true) return

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface ProductsRepository {
 
     fun isCacheValid(): Boolean
+    suspend fun hasProducts(): Boolean
     fun updateLastCacheTime()
     fun isLastPage(): Boolean
 

@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ProductDao {
 
+    @Query("SELECT EXISTS(SELECT 1 FROM products LIMIT 1)")
+    suspend fun hasProducts(): Boolean
+
     @Query("SELECT * FROM products")
     fun getAllProducts(): Flow<List<ProductEntity>>
 

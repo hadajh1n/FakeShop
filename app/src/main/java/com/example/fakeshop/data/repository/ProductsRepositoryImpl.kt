@@ -33,6 +33,8 @@ class ProductsRepositoryImpl(
         return System.currentTimeMillis() - lastCache < CACHE_VALID
     }
 
+    override suspend fun hasProducts(): Boolean = productDao.hasProducts()
+
     override fun updateLastCacheTime() = preferences.updateLastCacheTime()
 
     override fun isLastPage(): Boolean = preferences.isLastPage()
